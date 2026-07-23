@@ -1,0 +1,16 @@
+# Task entry points for building gowebwrap. Desktop (Linux) is a plain `go
+# build` — no bindings/frontend step needed, since the whole app is just a
+# webview pointed at a URL and driven by config.toml/flags at runtime.
+# Windows is built the same way from a Windows host/CI runner.
+version: '3'
+
+tasks:
+  build:
+    summary: Builds the application binary for local dev/testing (Linux/GTK3)
+    cmds:
+      - go build -tags "desktop gtk3" -o bin/gowebwrap .
+
+  run:
+    summary: Runs the built application binary
+    cmds:
+      - ./bin/gowebwrap

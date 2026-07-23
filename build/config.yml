@@ -1,0 +1,39 @@
+# Config for `wails3 dev`/`wails3 build` — used for local development only.
+# There's no separate production build pipeline here (no goreleaser): real
+# releases go through the Nix flake (packages.default / lib.mkApp) for
+# Linux, and a plain `go build` on a Windows host/CI runner for Windows.
+version: '3'
+
+info:
+  companyName: "jim-ww"
+  productName: "gowebwrap"
+  productIdentifier: "io.github.jim_ww.gowebwrap"
+  description: "Thin desktop wrapper around any URL"
+  copyright: ""
+  comments: ""
+  version: "0.0.1"
+
+dev_mode:
+  root_path: .
+  log_level: warn
+  debounce: 1000
+  ignore:
+    dir:
+      - .git
+      - bin
+    file:
+      - .DS_Store
+      - .gitignore
+      - .gitkeep
+      - "*_test.go"
+    watched_extension:
+      - "*.go"
+    git_ignore: true
+  executes:
+    # No frontend to build/serve — the webview just points at a URL, so dev
+    # mode is only "rebuild the Go binary and run it" (picking up
+    # ./gowebwrap.toml in the repo root, same as any other run).
+    - cmd: go build -tags "desktop gtk3" -o bin/gowebwrap-dev .
+      type: blocking
+    - cmd: ./bin/gowebwrap-dev
+      type: primary

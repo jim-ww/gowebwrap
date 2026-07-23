@@ -1,0 +1,8 @@
+# Example gowebwrap config — wraps example.com as a demo.
+#
+# Read at runtime only (auto-discovered from the current directory, or via
+# --config); replace it or point elsewhere for your own site, no rebuild
+# needed.
+name = "gowebwrap demo"
+description = "Example gowebwrap config wrapping example.com"
+url = "https://example.com"

@@ -1,0 +1,5 @@
+result
+result-*
+
+# go build output (Taskfile's `build`/`run`)
+/bin/
