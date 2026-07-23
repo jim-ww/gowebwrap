@@ -171,6 +171,7 @@
             wails3
             pkgs.go-task
             pkgs.pkg-config
+            pkgs.gh
           ]
           ++ webkitDeps
           ++ gstDeps;
