@@ -12,6 +12,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -48,12 +49,9 @@ func xdgDir(envVar, fallbackRelToHome string) (string, error) {
 // otherwise) and a .desktop launcher that points at it. It returns the path
 // of the installed .desktop file.
 func Install(cfg config.Config, configFile string) (string, error) {
-	exe, err := os.Executable()
+	exe, err := invokedPath()
 	if err != nil {
 		return "", fmt.Errorf("finding this binary's own path: %w", err)
-	}
-	if resolved, err := filepath.EvalSymlinks(exe); err == nil {
-		exe = resolved
 	}
 
 	slug := slugify(cfg.Name)
@@ -118,6 +116,25 @@ func Install(cfg config.Config, configFile string) (string, error) {
 	}
 
 	return desktopFile, nil
+}
+
+// invokedPath returns the path the current process was actually invoked as
+// (os.Args[0], resolved via PATH if it was a bare name), NOT os.Executable().
+// On Nix, the installed `gowebwrap` is a wrapper script (from wrapProgram)
+// that sets GIO_EXTRA_MODULES/SSL_CERT_FILE/etc. before exec-ing into the
+// real, hidden binary — so os.Executable() (which reads /proc/self/exe)
+// resolves past that wrapper to the unwrapped binary once we're running.
+// Baking that unwrapped path into the .desktop's Exec= would skip all of
+// the wrapper's env setup on every future launch (symptom: webview requests
+// fail with "TLS support is not available" — the missing GIO_EXTRA_MODULES
+// glib-networking module). os.Args[0] instead reflects the wrapper itself,
+// since that's what the shell/nix actually invoked.
+func invokedPath() (string, error) {
+	arg0 := os.Args[0]
+	if strings.ContainsRune(arg0, os.PathSeparator) {
+		return filepath.Abs(arg0)
+	}
+	return exec.LookPath(arg0)
 }
 
 // quoteDesktopExec applies the quoting the Exec key of the freedesktop.org
