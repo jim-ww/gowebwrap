@@ -12,6 +12,7 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/application"
 
 	"github.com/jim-ww/gowebwrap/internal/config"
+	"github.com/jim-ww/gowebwrap/internal/webkitcookies"
 	"github.com/jim-ww/gowebwrap/internal/webkitua"
 )
 
@@ -79,6 +80,7 @@ func Run(cfg config.Config) error {
 		go func() {
 			for i := 0; i < 200; i++ {
 				if nw := win.NativeWindow(); nw != nil {
+					webkitcookies.EnablePersistentStorage(nw)
 					if webkitua.SetUserAgent(nw, cfg.UserAgent) {
 						win.SetURL(cfg.URL)
 					}
