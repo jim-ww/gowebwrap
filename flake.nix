@@ -62,7 +62,7 @@
     in {
       packages.default = pkgs.buildGoModule {
         pname = "gowebwrap";
-        version = "0.0.3";
+        version = "0.0.4";
         src = ./.;
 
         vendorHash = "sha256-3/QiXWNrQSGvkiEe8zfva9iPHAkeBSJ8kAOdr4IFfoQ=";
