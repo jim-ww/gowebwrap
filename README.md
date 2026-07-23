@@ -1,3 +1,5 @@
+<p align="center"><img src=".github/logo.png" width="200" alt="gowebwrap logo"></p>
+
 # gowebwrap
 
 A thin, config-driven desktop wrapper for any website — no Electron, no bundled Chromium, no frontend build step.
@@ -121,3 +123,5 @@ If gowebwrap is useful to you, consider a small donation.
 ## License
 
 gowebwrap is free software, licensed under the MIT license — see [LICENSE](LICENSE).
+
+The logo (`.github/logo.png`) is a derivative work of the Go gopher, designed by Renée French ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)), using the color palette from Takuya Ueda's gopher vector art ([CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)).
