@@ -1,0 +1,50 @@
+# Builds macOS binaries and appends them to the GitHub Release that
+# triggered this workflow. Mirrors the Linux/Windows legs of `make release`
+# in the Makefile (same tar.gz layout: binary + README + LICENSE, plus a
+# checksums file) but has to run in CI since macOS's WKWebView backend is
+# cgo and there's no cross-compiling it from Linux like Windows' WebView2.
+#
+# amd64 and arm64 are built on their native runner (macos-13 is the last
+# Intel image, macos-14 is Apple Silicon) rather than cross-compiled on one
+# host, since cgo cross-compilation would need an Xcode cross SDK/toolchain
+# neither runner has set up by default.
+name: Release macOS
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: macos-13
+            goarch: amd64
+          - os: macos-14
+            goarch: arm64
+    runs-on: ${{ matrix.os }}
+    env:
+      APP_NAME: gowebwrap
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build
+        run: |
+          mkdir -p dist
+          workdir=$(mktemp -d)
+          CGO_ENABLED=1 GOOS=darwin GOARCH=${{ matrix.goarch }} \
+            go build -tags desktop,production -ldflags '-s -w' \
+            -o "$workdir/$APP_NAME" .
+          cp README.md LICENSE "$workdir/"
+          tar -C "$workdir" -czf "dist/${APP_NAME}_darwin_${{ matrix.goarch }}.tar.gz" \
+            "$APP_NAME" README.md LICENSE
+
+      - name: Upload to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ github.event.release.tag_name }}" dist/*.tar.gz --clobber
