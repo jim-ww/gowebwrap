@@ -1,4 +1,4 @@
-.PHONY: dev build release changelog checksums
+.PHONY: dev build release release-only changelog checksums
 
 dev:
 	nix develop -c wails3 dev
@@ -99,7 +99,14 @@ changelog:
 # Builds every target in $(TARGETS) on this one machine — see the TARGETS
 # comment above for what that requires (QEMU emulation registered for the
 # linux/arm64 leg).
-release: build changelog
+release: build changelog release-only
+
+# Just the `gh release create` step, against whatever's already sitting in
+# $(DIST_DIR) — for when `build`/`changelog` were already run (or hand-
+# edited) and re-running them isn't wanted, e.g. re-publishing after a
+# manual tweak to dist/changelog.txt.
+release-only:
+	@test -n "$(VERSION)" || { echo "no tag on HEAD — run 'git tag vX.Y.Z' first, or set TAG=vX.Y.Z"; exit 1; }
 	nix develop -c gh release create "$(VERSION)" \
 		--title "$(VERSION)" \
 		--notes-file "$(DIST_DIR)/changelog.txt" \
